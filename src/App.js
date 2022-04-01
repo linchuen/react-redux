@@ -1,56 +1,54 @@
 import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
+import { Example } from './component/example';
+import { Industry } from './component/industry';
+import { BrowserRouter, Routes, Route, Link, Outlet } from "react-router-dom";
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Example />} />
+          <Route path="about" element={<Industry />} />
+          <Route path="*" element={<NoMatch />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+function Layout() {
+  return (
+    <div>
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div className="container px-lg-5">
+          <a className="navbar-brand" href="#!">Start Bootstrap</a>
+          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span className="navbar-toggler-icon"></span></button>
+          <div className="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+              <li className="nav-item"><Link className="nav-link active" to="/">Home</Link></li>
+              <li className="nav-item"><Link className="nav-link" to="/about">About</Link></li>
+              <li className="nav-item"><Link className="nav-link" to="/nothing-here">Nothing Here</Link></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <Outlet />
+      <footer className="py-5 bg-dark">
+        <div className="container"><p className="m-0 text-center text-white">Copyright &copy; Your Website 2022</p></div>
+      </footer>
+    </div>
+  );
+}
+
+function NoMatch() {
+  return (
+    <div>
+      <h2>Nothing to see here!</h2>
+      <p>
+        <Link to="/">Go to the home page</Link>
+      </p>
     </div>
   );
 }
