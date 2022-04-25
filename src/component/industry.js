@@ -7,9 +7,10 @@ import {
     fetch_SubIndustry_GrowthAsync,
     fetch_SubIndustry_CompaniesAsync,
     fetchStockDetailAsync,
+    getGrowth,
     selectIndustry
 } from '../slice/industrySlice';
-import { Card, Container, Row, Col, Nav, Accordion, Popover, OverlayTrigger, Button, ListGroup } from 'react-bootstrap';
+import { Card, Container, Row, Col, Nav, Accordion, Popover, OverlayTrigger, Button, ListGroup, Badge } from 'react-bootstrap';
 
 export function Industry() {
     const state = useSelector(selectIndustry);
@@ -20,12 +21,19 @@ export function Industry() {
         dispatch(fetch_Industry_GrowthAsync("金融")).then(() => dispatch(fetch_Industry_CompaniesAsync("金融")))
     }, [])
     let industrylist = state.industry.map(industry => {
-        dispatch(fetch_Industry_GrowthAsync(industry.industryName))
+        if (state.growth[industry.industryName] == undefined) {
+            dispatch(fetch_Industry_GrowthAsync(industry.industryName))
+        }
         let subindustrylist = industry.subIndustries.map(subIndustry =>
             <Nav.Item key={subIndustry.subIndustryName} >
                 <Nav.Link as="div" onClick={() => {
                     let subIndustryName = subIndustry.subIndustryName.replace("/", "->");
-                    dispatch(fetch_SubIndustry_GrowthAsync([industry.industryName, subIndustryName])).then(() => dispatch(fetch_SubIndustry_CompaniesAsync([industry.industryName, subIndustryName])))
+                    if (state.growth[subIndustry.subIndustryName] == undefined) {
+                        dispatch(fetch_SubIndustry_GrowthAsync([industry.industryName, subIndustryName]))
+                            .then(() => dispatch(fetch_SubIndustry_CompaniesAsync([industry.industryName, subIndustryName])))
+                    } else {
+                        dispatch(fetch_SubIndustry_CompaniesAsync([industry.industryName, subIndustryName]))
+                    }
                 }}>{subIndustry.subIndustryName}</Nav.Link>
             </Nav.Item>
         )
@@ -115,8 +123,8 @@ export function Industry() {
         };
         return (
             <Col lg={2} key={key}>
-                <OverlayTrigger trigger="hover" placement="right" overlay={popover(key + ' ' + value)}>
-                    <Button variant="link" onMouseEnter={() => dispatch(fetchStockDetailAsync(key))}>{key + ' ' + value}</Button>
+                <OverlayTrigger trigger={["hover", "focus"]} placement="right" overlay={popover(key + ' ' + value)}>
+                    <Button variant="link" onMouseEnter={() => { dispatch(fetchStockDetailAsync(key)) }}> <a href={"https://tw.stock.yahoo.com/quote/" + key + "/technical-analysis"}>{key + ' ' + value}</a></Button>
                 </OverlayTrigger>
             </Col>
         )
@@ -124,13 +132,22 @@ export function Industry() {
 
     return (
         <div>
-            <header className="my-5" style={{ position: 'sticky', top: '0', zIndex: '98' }}>
+            <header className="py-5">
                 <Container className="px-lg-5" >
                     <div className="p-4 p-lg-5 bg-light rounded-3 text-center" >
                         <div className="m-4 m-lg-5" style={{ textAlign: 'left' }}>
                             <h1 className="display-5 fw-bold ml-1" style={{ textAlign: 'left' }}>{state.panel.title}</h1>
-                            <h3>今日漲幅:{parseFloat(state.panel.growth * 100).toFixed(2)}%</h3>
-                            <p className="fs-4" style={{ textAlign: 'left' }}>公司列表:</p>
+                            <h4>漲幅:{parseFloat(state.panel.growth * 100).toFixed(2)}%
+                                <Button variant="outline-light" onClick={() => dispatch(getGrowth(state.panel.title))}><Badge bg="primary" >今日</Badge></Button>
+                                <Button variant="outline-light" onClick={() => dispatch(getGrowth(state.panel.title))}><Badge bg="info">近1個月</Badge></Button>
+                                <Button variant="outline-light" onClick={() => dispatch(getGrowth(state.panel.title))}><Badge bg="warning" className="mx-2">近3個月</Badge></Button>
+                            </h4>
+                            <h4 className="fs-4" >公司類別:
+                                <Badge bg="primary" className="mx-2">上市</Badge>
+                                <Badge bg="info" className="mx-2">上櫃</Badge>
+                                <Badge bg="warning" className="mx-2">興櫃</Badge>
+                            </h4>
+                            <h4 className="fs-4" style={{ textAlign: 'left' }}>公司列表:</h4>
                             <Row className="fs-5">{companies}</Row>
                         </div>
                     </div>
