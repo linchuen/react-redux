@@ -3,32 +3,39 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
     fetchTypeAsync,
     fetch_Industry_GrowthAsync,
+    fetch_Industry_1MonthGrowthAsync,
     fetch_Industry_CompaniesAsync,
     fetch_SubIndustry_GrowthAsync,
     fetch_SubIndustry_CompaniesAsync,
     fetchStockDetailAsync,
+    fetchCompanyTypeAsync,
     getGrowth,
+    getStock,
+    setStockColor,
     selectIndustry
 } from '../slice/industrySlice';
-import { Card, Container, Row, Col, Nav, Accordion, Popover, OverlayTrigger, Button, ListGroup, Badge } from 'react-bootstrap';
+import { Card, Container, Row, Col, Nav, Accordion, Popover, OverlayTrigger, Button, ListGroup, Badge, Tooltip } from 'react-bootstrap';
 
 export function Industry() {
     const state = useSelector(selectIndustry);
     const dispatch = useDispatch();
 
     useEffect(() => {
+        dispatch(fetchCompanyTypeAsync('上市'))
+        dispatch(fetchCompanyTypeAsync('上櫃'))
+        dispatch(fetchCompanyTypeAsync('興櫃'))
         dispatch(fetchTypeAsync())
         dispatch(fetch_Industry_GrowthAsync("金融")).then(() => dispatch(fetch_Industry_CompaniesAsync("金融")))
     }, [])
     let industrylist = state.industry.map(industry => {
-        if (state.growth[industry.industryName] == undefined) {
+        if (state.growth[industry.industryName] === undefined) {
             dispatch(fetch_Industry_GrowthAsync(industry.industryName))
         }
         let subindustrylist = industry.subIndustries.map(subIndustry =>
             <Nav.Item key={subIndustry.subIndustryName} >
                 <Nav.Link as="div" onClick={() => {
                     let subIndustryName = subIndustry.subIndustryName.replace("/", "->");
-                    if (state.growth[subIndustry.subIndustryName] == undefined) {
+                    if (state.growth[subIndustry.subIndustryName] === undefined) {
                         dispatch(fetch_SubIndustry_GrowthAsync([industry.industryName, subIndustryName]))
                             .then(() => dispatch(fetch_SubIndustry_CompaniesAsync([industry.industryName, subIndustryName])))
                     } else {
@@ -63,72 +70,117 @@ export function Industry() {
             </Col >
         )
     });
+    const popover = (data) => {
+        return (
+            <Popover style={{ width: '15%' }}>
+                <Popover.Header as="h3">{data.key + ' ' + data.value}</Popover.Header>
+                <Popover.Body>
+                    <ListGroup variant="flush">
+                        <ListGroup.Item>
+                            <Row>
+                                <Col >公司名稱:</Col><Col >{state.panel.stock['name']}</Col>
+                            </Row>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <Row>
+                                <Col>股票代碼:</Col><Col>{state.panel.stock['stockcode']}</Col>
+                            </Row>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <Row>
+                                <Col>產業別:</Col><Col>{state.panel.stock['industryType']}</Col>
+                            </Row>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <Row>
+                                <Col>公司類型:</Col><Col>{state.panel.stock['companyType']}</Col>
+                            </Row>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <Row>
+                                <Col>股價:</Col><Col >{parseFloat(state.panel.stock['price']).toFixed(2)}</Col>
+                            </Row>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <Row>
+                                <Col>開盤價:</Col><Col>{parseFloat(state.panel.stock['open']).toFixed(2)}</Col>
+                            </Row>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <Row>
+                                <Col>最高價:</Col><Col>{parseFloat(state.panel.stock['highest']).toFixed(2)}</Col>
+                            </Row>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <Row>
+                                <Col >最低價:</Col><Col>{parseFloat(state.panel.stock['lowest']).toFixed(2)}</Col>
+                            </Row>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <Row>
+                                <Col >收盤價:</Col><Col>{parseFloat(state.panel.stock['lastprice']).toFixed(2)}</Col>
+                            </Row>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <Row>
+                                <Col >交易量:</Col><Col>{state.panel.stock['tradingVolume']}</Col>
+                            </Row>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <Row>
+                                <Col >交易日:</Col><Col>{state.panel.stock['createdTime']}</Col>
+                            </Row>
+                        </ListGroup.Item>
+                    </ListGroup>
+                </Popover.Body>
+            </Popover>
+        )
+    };
+    let buttonColorType = (key) => {
+        if (state.listedon === true && state.listed.includes(key)) {
+            return 'primary'
+        } else if (state.otcon === true && state.otc.includes(key)) {
+            return 'info'
+        } else if (state.emergingon === true && state.emerging.includes(key)) {
+            return 'warning'
+        } else {
+            return 'link'
+        }
+    }
+
+    let aColor = (key) => {
+        if (state.listedon === true && state.listed.includes(key)) {
+            return { color: 'white' }
+        } else if (state.otcon === true && state.otc.includes(key)) {
+            return { color: 'white' }
+        } else if (state.emergingon === true && state.emerging.includes(key)) {
+            return { color: 'white' }
+        } else {
+            return { color: 'blue' }
+        }
+    }
+
     let companies = Object.entries(state.panel.companies).map(entry => {
         const [key, value] = entry;
-        const popover = (title) => {
-            return (
-                <Popover style={{ width: '15%' }}>
-                    <Popover.Header as="h3">{title}</Popover.Header>
-                    <Popover.Body>
-                        <ListGroup variant="flush">
-                            <ListGroup.Item>
-                                <Row>
-                                    <Col >公司名稱:</Col><Col >{state.stock['name']}</Col>
-                                </Row>
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                                <Row>
-                                    <Col>股票代碼:</Col><Col>{state.stock['stockcode']}</Col>
-                                </Row>
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                                <Row>
-                                    <Col>股價:</Col><Col >{parseFloat(state.stock['price']).toFixed(2)}</Col>
-                                </Row>
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                                <Row>
-                                    <Col>開盤價:</Col><Col>{parseFloat(state.stock['open']).toFixed(2)}</Col>
-                                </Row>
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                                <Row>
-                                    <Col>最高價:</Col><Col>{parseFloat(state.stock['highest']).toFixed(2)}</Col>
-                                </Row>
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                                <Row>
-                                    <Col >最低價:</Col><Col>{parseFloat(state.stock['lowest']).toFixed(2)}</Col>
-                                </Row>
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                                <Row>
-                                    <Col >收盤價:</Col><Col>{parseFloat(state.stock['lastprice']).toFixed(2)}</Col>
-                                </Row>
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                                <Row>
-                                    <Col >交易量:</Col><Col>{state.stock['tradingVolume']}</Col>
-                                </Row>
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                                <Row>
-                                    <Col >交易日:</Col><Col>{state.stock['createdTime']}</Col>
-                                </Row>
-                            </ListGroup.Item>
-                        </ListGroup>
-                    </Popover.Body>
-                </Popover>
-            )
-        };
         return (
-            <Col lg={2} key={key}>
-                <OverlayTrigger trigger={["hover", "focus"]} placement="right" overlay={popover(key + ' ' + value)}>
-                    <Button variant="link" onMouseEnter={() => { dispatch(fetchStockDetailAsync(key)) }}> <a href={"https://tw.stock.yahoo.com/quote/" + key + "/technical-analysis"}>{key + ' ' + value}</a></Button>
+            <Col className="m-1" lg={2} key={key}>
+                <OverlayTrigger trigger={["hover", "focus"]} placement="right" overlay={popover({ key: key, value: value })}>
+                    <Button style={{ opacity: 0.85 }}
+                        variant={buttonColorType(key)}
+                        onMouseEnter={() => {
+                            state.stock[key] === undefined ? dispatch(fetchStockDetailAsync(key)) : dispatch(getStock(key))
+                        }}>
+                        <a style={aColor(key)} href={"https://tw.stock.yahoo.com/quote/" + key + "/technical-analysis"}>{key + ' ' + value}</a>
+                    </Button>
                 </OverlayTrigger>
             </Col>
         )
     });
+    const renderTooltip = (props) => (
+        <Tooltip id="button-tooltip" {...props}>
+            (1個月及3個月僅顯示上市公司漲幅)
+        </Tooltip>
+    );
 
     return (
         <div>
@@ -137,15 +189,18 @@ export function Industry() {
                     <div className="p-4 p-lg-5 bg-light rounded-3 text-center" >
                         <div className="m-4 m-lg-5" style={{ textAlign: 'left' }}>
                             <h1 className="display-5 fw-bold ml-1" style={{ textAlign: 'left' }}>{state.panel.title}</h1>
-                            <h4>漲幅:{parseFloat(state.panel.growth * 100).toFixed(2)}%
+                            <h4>漲幅:
+                                <OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }} overlay={renderTooltip}>
+                                    <span>{parseFloat(state.panel.growth * 100).toFixed(2)}% </span>
+                                </OverlayTrigger>
                                 <Button variant="outline-light" onClick={() => dispatch(getGrowth(state.panel.title))}><Badge bg="primary" >今日</Badge></Button>
-                                <Button variant="outline-light" onClick={() => dispatch(getGrowth(state.panel.title))}><Badge bg="info">近1個月</Badge></Button>
-                                <Button variant="outline-light" onClick={() => dispatch(getGrowth(state.panel.title))}><Badge bg="warning" className="mx-2">近3個月</Badge></Button>
+                                <Button variant="outline-light" onClick={() => { console.log(state.growth); dispatch(fetch_Industry_1MonthGrowthAsync(state.panel.title)) }}><Badge bg="info">近1個月</Badge></Button>
+                                <Button variant="outline-light" onClick={() => dispatch(fetch_Industry_1MonthGrowthAsync(state.panel.title))}><Badge bg="warning">近3個月</Badge></Button>
                             </h4>
                             <h4 className="fs-4" >公司類別:
-                                <Badge bg="primary" className="mx-2">上市</Badge>
-                                <Badge bg="info" className="mx-2">上櫃</Badge>
-                                <Badge bg="warning" className="mx-2">興櫃</Badge>
+                                <Button variant="outline-light" onClick={() => dispatch(setStockColor('上市'))}><Badge bg="primary">上市</Badge></Button>
+                                <Button variant="outline-light" onClick={() => dispatch(setStockColor('上櫃'))}><Badge bg="info" >上櫃</Badge></Button>
+                                <Button variant="outline-light" onClick={() => dispatch(setStockColor('興櫃'))}><Badge bg="warning" >興櫃</Badge></Button>
                             </h4>
                             <h4 className="fs-4" style={{ textAlign: 'left' }}>公司列表:</h4>
                             <Row className="fs-5">{companies}</Row>
