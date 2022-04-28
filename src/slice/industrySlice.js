@@ -4,7 +4,6 @@ import { fetchUrl } from '../api/industryAPI';
 export const fetchStockDetailAsync = createAsyncThunk(
     'stock/fetchStockDetail',
     async (stockcode) => {
-        //const data = await fetchUrl('http://localhost:8080/stock/2330')
         const data = await fetchUrl('http://localhost:8080/stock/' + stockcode)
         console.log(stockcode, data)
         return { stockcode: stockcode, data: data }
@@ -31,14 +30,24 @@ export const fetch_Industry_GrowthAsync = createAsyncThunk(
     }
 );
 
-export const fetch_Industry_1MonthGrowthAsync = createAsyncThunk(
+export const fetch_Industry_n_DaysGrowthAsync = createAsyncThunk(
     'industry/fetchIndustry1MonthGrowthAsync',
-    async (industryType) => {
-        const data = await fetchUrl('http://localhost:8080/industry/growth?Days=5&Type=金融')
-        //const data = await fetchUrl('http://localhost:8080/industry/growth/'+industryType)
-        console.log(industryType, data)
-        let json = { industryType: industryType, data: data }
-        return json
+    async (param) => {
+        let [industryType, subIndustry, days] = param
+        if (subIndustry === '') {
+            const data = await fetchUrl('http://localhost:8080/subindustry/growth/listed?Days=' + days + '&Type=金融&SubType=證券業')
+            //const data = await fetchUrl('http://localhost:8080/industry/growth?Days' + days + '&Type='+industryType+'&SubType='+subIndustry)
+            console.log(industryType, subIndustry, days, data)
+            let json = { industryType: industryType, subIndustry: subIndustry, data: data }
+            return json
+        } else {
+            const data = await fetchUrl('http://localhost:8080/industry/growth/listed?Days=' + days + '&Type=金融')
+            //const data = await fetchUrl('http://localhost:8080/industry/growth?Days=+ days + &Type='+industryType)
+            console.log(industryType, subIndustry, days, data)
+            let json = { industryType: industryType, subIndustry: subIndustry, days: days, data: data }
+            return json
+        }
+
     }
 );
 
@@ -70,7 +79,7 @@ export const fetch_SubIndustry_CompaniesAsync = createAsyncThunk(
         let [industryType, subIndustry] = param
         const data = await fetchUrl('http://localhost:8080/industry/stockInfo/' + industryType + '/' + subIndustry)
         console.log(industryType, subIndustry, data)
-        let json = { subIndustry: subIndustry, data: data }
+        let json = { industryType: industryType, subIndustry: subIndustry, data: data }
         return json
     }
 );
@@ -94,6 +103,8 @@ const initialState = {
     },
     panel: {
         title: '金融',
+        industryType: '金融',
+        subindustryName: '',
         growth: 0,
         companies: [],
         stock: {}
@@ -137,16 +148,30 @@ export const industrySlice = createSlice({
                 let data = action.payload.data
                 state.growth[industryType] = data
             })
-            .addCase(fetch_Industry_1MonthGrowthAsync.fulfilled, (state, action) => {
-                let industryType = action.payload.industryType
-                let data = action.payload.data
-                state.growth.oneMonth[industryType] = data
-                state.panel.growth = data
-            })
             .addCase(fetch_SubIndustry_GrowthAsync.fulfilled, (state, action) => {
                 let subIndustry = action.payload.subIndustry
                 let data = action.payload.data
                 state.growth[subIndustry] = data
+            })
+            .addCase(fetch_Industry_n_DaysGrowthAsync.fulfilled, (state, action) => {
+                let industryType = action.payload.industryType
+                let subIndustry = action.payload.subIndustry
+                let days = action.payload.days
+                let data = action.payload.data
+                if (days === 30) {
+                    if (subIndustry === '') {
+                        state.growth.oneMonth[industryType] = data
+                    } else {
+                        state.growth.oneMonth[subIndustry] = data
+                    }
+                } else if (days === 90) {
+                    if (subIndustry === '') {
+                        state.growth.threeMonth[industryType] = data
+                    } else {
+                        state.growth.threeMonth[subIndustry] = data
+                    }
+                }
+                state.panel.growth = data
             })
             .addCase(fetch_Industry_CompaniesAsync.fulfilled, (state, action) => {
                 let industryType = action.payload.industryType
@@ -154,13 +179,18 @@ export const industrySlice = createSlice({
                 state.panel.title = industryType
                 state.panel.growth = state.growth[industryType]
                 state.panel.companies = data
+                state.panel.industryType = industryType
+                state.panel.subIndustryName = ''
             })
             .addCase(fetch_SubIndustry_CompaniesAsync.fulfilled, (state, action) => {
+                let industryType = action.payload.industryType
                 let subIndustry = action.payload.subIndustry
                 let data = action.payload.data
-                state.panel.title = subIndustry.replace("->", "/")
+                state.panel.title = subIndustry.replaceAll("->", "/")
                 state.panel.growth = state.growth[subIndustry]
                 state.panel.companies = data
+                state.panel.industryType = industryType
+                state.panel.subIndustryName = subIndustry
             })
             .addCase(fetchStockDetailAsync.fulfilled, (state, action) => {
                 let stockcode = action.payload.stockcode
