@@ -22,8 +22,8 @@ export const fetchTypeAsync = createAsyncThunk(
 export const fetch_Industry_GrowthAsync = createAsyncThunk(
     'industry/fetchIndustryGrowth',
     async (industryType) => {
-        const data = await fetchUrl('http://localhost:8080/industry/growth/金融')
-        //const data = await fetchUrl('http://localhost:8080/industry/growth/'+industryType)
+        //const data = await fetchUrl('http://localhost:8080/industry/growth/金融')
+        const data = await fetchUrl('http://localhost:8080/industry/growth/'+industryType)
         console.log(industryType, data)
         let json = { industryType: industryType, data: data }
         return json
@@ -35,14 +35,14 @@ export const fetch_Industry_n_DaysGrowthAsync = createAsyncThunk(
     async (param) => {
         let [industryType, subIndustry, days] = param
         if (subIndustry === '') {
-            const data = await fetchUrl('http://localhost:8080/subindustry/growth/listed?Days=' + days + '&Type=金融&SubType=證券業')
-            //const data = await fetchUrl('http://localhost:8080/industry/growth?Days' + days + '&Type='+industryType+'&SubType='+subIndustry)
+            //const data = await fetchUrl('http://localhost:8080/subindustry/growth/listed?Days=' + days + '&Type=金融&SubType=證券業')
+            const data = await fetchUrl('http://localhost:8080/industry/growth?Days' + days + '&Type='+industryType+'&SubType='+subIndustry)
             console.log(industryType, subIndustry, days, data)
             let json = { industryType: industryType, subIndustry: subIndustry, data: data }
             return json
         } else {
-            const data = await fetchUrl('http://localhost:8080/industry/growth/listed?Days=' + days + '&Type=金融')
-            //const data = await fetchUrl('http://localhost:8080/industry/growth?Days=+ days + &Type='+industryType)
+            //const data = await fetchUrl('http://localhost:8080/industry/growth/listed?Days=' + days + '&Type=金融')
+            const data = await fetchUrl('http://localhost:8080/industry/growth?Days='+ days + '&Type='+industryType)
             console.log(industryType, subIndustry, days, data)
             let json = { industryType: industryType, subIndustry: subIndustry, days: days, data: data }
             return json
@@ -55,8 +55,8 @@ export const fetch_SubIndustry_GrowthAsync = createAsyncThunk(
     'industry/fetchSubIndustryGrowthAsync',
     async (param) => {
         let [industryType, subIndustry] = param
-        const data = await fetchUrl('http://localhost:8080/industry/growth/金融/證券業')
-        //const data = await fetchUrl('http://localhost:8080/industry/growth/'+industryType+'/'+subIndustry)
+        //const data = await fetchUrl('http://localhost:8080/industry/growth/金融/證券業')
+        const data = await fetchUrl('http://localhost:8080/industry/growth/'+industryType+'/'+subIndustry)
         console.log(industryType, subIndustry, data)
         let json = { subIndustry: subIndustry, data: data }
         return json
