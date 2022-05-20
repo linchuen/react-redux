@@ -1,6 +1,7 @@
 import React from 'react';
 import { Example } from './component/example';
 import { Industry } from './component/industry';
+import { Statistics } from './component/statistics';
 import { BrowserRouter, Routes, Route, Link, Outlet } from "react-router-dom";
 import './App.css';
 
@@ -10,7 +11,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Example />} />
-          <Route path="about" element={<Industry />} />
+          <Route path="growth" element={<Industry />} />
+          <Route path="statistics" element={<Statistics />} />
           <Route path="*" element={<NoMatch />} />
         </Route>
       </Routes>
@@ -28,7 +30,8 @@ function Layout() {
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
               <li className="nav-item"><Link className="nav-link active" to="/">首頁</Link></li>
-              <li className="nav-item"><Link className="nav-link" to="/about">產業成長概況</Link></li>
+              <li className="nav-item"><Link className="nav-link" to="/growth">產業成長概況</Link></li>
+              <li className="nav-item"><Link className="nav-link" to="/statistics">產業統計圖表</Link></li>
               <li className="nav-item"><Link className="nav-link" to="/nothing-here">Nothing Here</Link></li>
             </ul>
           </div>

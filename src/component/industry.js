@@ -151,63 +151,91 @@ export function Industry() {
         </Tooltip>
     );
 
+    let growthMap = new Map()
     let industryLocationList = state.industry.map(industry => {
+        growthMap.set(industry.industryName, state.growth[industry.industryName])
         return (
-            <Col lg={6} key={industry.id+0}><Dropdown.Item as='div' 
-            onClick={() => { document.getElementById(industry.id).scrollIntoView({ behavior: "smooth", block: "center" }) }}
-        >{industry.industryName}</Dropdown.Item>
+            <Col lg={6} key={industry.id + 0}><Dropdown.Item as='div'
+                onClick={() => { document.getElementById(industry.id).scrollIntoView({ behavior: "smooth", block: "center" }) }}
+            >{industry.industryName}</Dropdown.Item>
             </Col>
-            
+
+        )
+    })
+
+    let rank = new Map([...growthMap.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10))
+
+    let ranklist = [...rank.entries()].map(entries => {
+        let stockcode = entries[0]
+        let name = parseFloat(entries[1] * 100).toFixed(2)
+
+        return (
+            <ListGroup.Item as="li">{stockcode + ' ' + name}%</ListGroup.Item>
         )
     })
 
     return (
         <div>
-            <div style={{ position: 'fixed', top: '100px', left: '20px', display: 'inline', width: '300px' }}>
-                <Dropdown>
-                    <Dropdown.Toggle variant="primary" style={{color:'white'}}>
-                        產業快捷選單
-                    </Dropdown.Toggle>
+            <Row className='g-0'>
+                <Col sm={12} md={6} lg={4} xxl={2}>
+                    <div style={window.screen.width >= 992?{ position: 'fixed', top: '100px', left: '50px', width: '300px' }:{padding:'10%'}}>
+                        <Dropdown>
+                            <Dropdown.Toggle variant="primary" style={{ color: 'white' }}>
+                                產業快捷選單
+                            </Dropdown.Toggle>
 
-                    <Dropdown.Menu>
-                        <Row>
-                        {industryLocationList}
-                        </Row>
-                    </Dropdown.Menu>
-                </Dropdown>
-            </div>
-            <header className="py-5">
-                <Container className="px-lg-5" >
-                    <div className="p-4 p-lg-5 bg-light rounded-3 text-center" >
-                        <div className="m-4 m-lg-5" style={{ textAlign: 'left' }}>
-                            <h1 className="display-5 fw-bold ml-1" style={{ textAlign: 'left' }}>{state.panel.title}</h1>
-                            <h4>漲幅:
-                                <OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }} overlay={renderTooltip}>
-                                    <span>{parseFloat(state.panel.growth * 100).toFixed(2)}% </span>
-                                </OverlayTrigger>
-                                <Button variant="outline-light" onClick={() => dispatch(getGrowth(state.panel.title))}><Badge bg="primary" >今日</Badge></Button>
-                                <Button variant="outline-light" onClick={() => dispatch(fetch_Industry_n_DaysGrowthAsync([state.panel.industryType,state.panel.subindustryName,30]))}><Badge bg="info">近1個月</Badge></Button>
-                                <Button variant="outline-light" onClick={() => dispatch(fetch_Industry_n_DaysGrowthAsync([state.panel.industryType,state.panel.subindustryName,90]))}><Badge bg="warning">近3個月</Badge></Button>
-                            </h4>
-                            <h4 className="fs-4" >公司類別:
-                                <Button variant="outline-light" onClick={() => dispatch(setStockColor('上市'))}><Badge bg="primary">上市</Badge></Button>
-                                <Button variant="outline-light" onClick={() => dispatch(setStockColor('上櫃'))}><Badge bg="info" >上櫃</Badge></Button>
-                                <Button variant="outline-light" onClick={() => dispatch(setStockColor('興櫃'))}><Badge bg="warning" >興櫃</Badge></Button>
-                            </h4>
-                            <h4 className="fs-4" style={{ textAlign: 'left' }}>公司列表:</h4>
-                            <Row className="fs-5">{companies}</Row>
-                        </div>
+                            <Dropdown.Menu>
+                                <Row>
+                                    {industryLocationList}
+                                </Row>
+                            </Dropdown.Menu>
+                        </Dropdown>
                     </div>
-                </Container>
-            </header>
-            <section className="pt-4">
-                <Container className="px-lg-5">
-                    <Row className="gx-lg-5">
-                        {industrylist}
-                    </Row>
-                </Container>
-            </section>
-
+                </Col>
+                <Col sm={12} md={6} lg={8} xxl={8}>
+                    <header className="py-5">
+                        <Container className="px-lg-5" >
+                            <div className="p-4 p-lg-5 bg-light rounded-3 text-center" >
+                                <div className="m-4 m-lg-5" style={{ textAlign: 'left' }}>
+                                    <h1 className="display-5 fw-bold ml-1" style={{ textAlign: 'left' }}>{state.panel.title}</h1>
+                                    <h4>漲幅:
+                                        <OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }} overlay={renderTooltip}>
+                                            <span>{parseFloat(state.panel.growth * 100).toFixed(2)}% </span>
+                                        </OverlayTrigger>
+                                        <Button variant="outline-light" onClick={() => dispatch(getGrowth(state.panel.title))}><Badge bg="primary" >今日</Badge></Button>
+                                        <Button variant="outline-light" onClick={() => dispatch(fetch_Industry_n_DaysGrowthAsync([state.panel.industryType, state.panel.subindustryName, 30]))}><Badge bg="info">近1個月</Badge></Button>
+                                        <Button variant="outline-light" onClick={() => dispatch(fetch_Industry_n_DaysGrowthAsync([state.panel.industryType, state.panel.subindustryName, 90]))}><Badge bg="warning">近3個月</Badge></Button>
+                                    </h4>
+                                    <h4 className="fs-4" >公司類別:
+                                        <Button variant="outline-light" onClick={() => dispatch(setStockColor('上市'))}><Badge bg="primary">上市</Badge></Button>
+                                        <Button variant="outline-light" onClick={() => dispatch(setStockColor('上櫃'))}><Badge bg="info" >上櫃</Badge></Button>
+                                        <Button variant="outline-light" onClick={() => dispatch(setStockColor('興櫃'))}><Badge bg="warning" >興櫃</Badge></Button>
+                                    </h4>
+                                    <h4 className="fs-4" style={{ textAlign: 'left' }}>公司列表:</h4>
+                                    <Row className="fs-5">{companies}</Row>
+                                </div>
+                            </div>
+                        </Container>
+                    </header>
+                    <section className="pt-4">
+                        <Container className="px-lg-5">
+                            <Row className="gx-lg-5">
+                                {industrylist}
+                            </Row>
+                        </Container>
+                    </section>
+                </Col>
+                <Col md={12} xxl={2}>
+                    <div className='px-3 py-5'>
+                        <h4>今日產業漲幅排行</h4>
+                        <ListGroup as="ol" numbered>
+                            {ranklist}
+                        </ListGroup>
+                    </div>
+                </Col>
+            </Row>
         </div>
     );
 }
