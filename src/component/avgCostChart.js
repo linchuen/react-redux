@@ -22,7 +22,7 @@ export default function AvgCostChart() {
                         <ComposedChart
                             width={500}
                             height={300}
-                            data={state.data}
+                            data={state.data.slice(-state.dataAmout)}
                             margin={{
                                 top: 5,
                                 right: 30,
@@ -45,20 +45,20 @@ export default function AvgCostChart() {
                         </ComposedChart>
                     </ResponsiveContainer>
                 </Col>
-                <Col md={{span:11,offset:1}}>
-                    <div className="form-check m-2" style={{display:"inline-block"}}>
+                <Col md={{ span: 11, offset: 1 }}>
+                    <div className="form-check m-2" style={{ display: "inline-block" }}>
                         <input className="form-check-input" type="checkbox" onChange={() => { dispatch(setAvg5d()) }} />
                         <label className="form-check-label">平均5日成本</label>
                     </div>
-                    <div className="form-check m-2" style={{display:"inline-block"}}>
+                    <div className="form-check m-2" style={{ display: "inline-block" }}>
                         <input className="form-check-input" type="checkbox" value="平均10日成本" onChange={() => { dispatch(setAvg10d()) }} />
                         <label className="form-check-label">平均10日成本</label>
                     </div>
-                    <div className="form-check m-2" style={{display:"inline-block"}}>
+                    <div className="form-check m-2" style={{ display: "inline-block" }}>
                         <input className="form-check-input" type="checkbox" value="平均21日成本" onChange={() => { dispatch(setAvg21d()) }} />
                         <label className="form-check-label">平均21日成本</label>
                     </div>
-                    <div className="form-check m-2" style={{display:"inline-block"}}>
+                    <div className="form-check m-2" style={{ display: "inline-block" }}>
                         <input className="form-check-input" type="checkbox" value="平均62日成本" onChange={() => { dispatch(setAvg62d()) }} />
                         <label className="form-check-label">平均62日成本</label>
                     </div>

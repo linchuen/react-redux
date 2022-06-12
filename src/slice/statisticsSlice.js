@@ -45,6 +45,7 @@ const initialState = {
     avg10dVol: false,
     avg21dVol: false,
     data: [],
+    dataAmout:90,
     stockData: {
         data: [],
         avgCost: []
@@ -76,6 +77,10 @@ export const statisticsSlice = createSlice({
         },
         setAvg21dVol: (state, action) => {
             state.avg21dVol = !state.avg21dVol
+        },
+        setDataAmout: (state, action) => {
+            let amout = action.payload
+            state.dataAmout = amout
         },
     },
     extraReducers: (builder) => {
@@ -116,7 +121,7 @@ export const statisticsSlice = createSlice({
     },
 });
 
-export const { setTitle,setAvg5d,setAvg10d,setAvg21d,setAvg62d,setAvg10dVol,setAvg21dVol } = statisticsSlice.actions;
+export const { setTitle,setAvg5d,setAvg10d,setAvg21d,setAvg62d,setAvg10dVol,setAvg21dVol,setDataAmout } = statisticsSlice.actions;
 
 export const selectStatistics = (state) => state.statistics;
 

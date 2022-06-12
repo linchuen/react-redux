@@ -5,6 +5,7 @@ import {
     fetch_All_Industry_TypeAsync,
     fetch_Industry_CompaniesAsync,
     setTitle,
+    setDataAmout,
     selectStatistics
 } from '../slice/statisticsSlice';
 import {
@@ -40,7 +41,7 @@ export function Statistics() {
     const state = useSelector(selectStatistics)
     const listedlist = useSelector((state) => state.industry.listed)
     const dispatch = useDispatch()
-    
+
     useEffect(() => {
         dispatch(fetchCompanyTypeAsync('上市'))
         dispatch(fetch_All_Industry_TypeAsync()).then((action) => {
@@ -73,22 +74,23 @@ export function Statistics() {
     return (
         <div>
             <header className="p-5">
-                <Nav variant="pills" onSelect={(eventKey) => dispatch(fetchStockDetailStatisticsListAsync({stockcode: eventKey, days: 90})).then(dispatch(setTitle(eventKey)))}>
+                <Nav variant="pills" onSelect={(eventKey) => dispatch(fetchStockDetailStatisticsListAsync({ stockcode: eventKey, days: 90 })).then(dispatch(setTitle(eventKey)))}>
                     {industrylist}
                 </Nav>
             </header>
+
             <section>
-                <h3 style={{ textAlign: 'center' }}>{state.title}</h3>
                 <Row>
                     <Col md={{ span: 2, offset: 10 }}>
                         <DropdownButton id="dropdown-basic-button" title="顯示資料量" variant={"Info"}>
-                            <Dropdown.Item>30筆</Dropdown.Item>
-                            <Dropdown.Item>60筆</Dropdown.Item>
-                            <Dropdown.Item>90筆</Dropdown.Item>
+                            <Dropdown.Item onClick={()=>dispatch(setDataAmout(30))}>30筆</Dropdown.Item>
+                            <Dropdown.Item onClick={()=>dispatch(setDataAmout(60))}>60筆</Dropdown.Item>
+                            <Dropdown.Item onClick={()=>dispatch(setDataAmout(90))}>90筆</Dropdown.Item>
                         </DropdownButton>
                     </Col>
                 </Row>
-                <StockChart stockdata={state.stockData} title={state.title}/>
+                <h3 style={{ textAlign: 'center' }}>{state.title}</h3>
+                <StockChart stockdata={state.stockData} title={state.title} />
                 <div>
                     <Row>
                         <Col xl={6}>
