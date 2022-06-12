@@ -17,7 +17,7 @@ Highcharts.setOptions({
     }
 });
 
-const StockChart = (props) => {
+const StockChart=(props)=> {
     const options = {
         chart: {
             height: 400,
@@ -55,14 +55,14 @@ const StockChart = (props) => {
                 let close = this.points[0].point.close
                 let high = this.points[0].point.high
                 let low = this.points[0].point.low
-                let avgCost=this.points[1].y
+                let avgCost = this.points[1].y
                 return props.title +
                     '<br><b>交易日: </b>' + formatted_date +
                     '<br>開盤價: ' + open +
                     '<br>收盤價: ' + close +
                     '<br>最高: ' + high +
-                    '<br>最低: ' + low+
-                    '<br>平均成本: '+avgCost
+                    '<br>最低: ' + low +
+                    '<br>平均成本: ' + avgCost
             }
         },
         series: [{
@@ -76,13 +76,14 @@ const StockChart = (props) => {
             marker: {
                 enabled: true,
                 radius: 2,
-                lineColor:'white'
+                lineColor: 'white'
             },
         }],
         accessibility: {
             enabled: false
         },
     }
+
 
     return (
         <div style={{ width: '90%', margin: '0 auto' }}>
@@ -94,5 +95,4 @@ const StockChart = (props) => {
         </div>)
 
 }
-
 export default StockChart

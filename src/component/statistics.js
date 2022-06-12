@@ -40,13 +40,13 @@ export function Statistics() {
     const state = useSelector(selectStatistics)
     const listedlist = useSelector((state) => state.industry.listed)
     const dispatch = useDispatch()
-
+    
     useEffect(() => {
         dispatch(fetchCompanyTypeAsync('上市'))
         dispatch(fetch_All_Industry_TypeAsync()).then((action) => {
             action.payload.data.forEach(industryType => dispatch(fetch_Industry_CompaniesAsync(industryType)))
         })
-        dispatch(fetchStockDetailStatisticsListAsync(['2330', 30]))
+        dispatch(fetchStockDetailStatisticsListAsync({ stockcode: state.title.split(' ')[0], days: 90 }))
     }, [])
 
     let industrylist = Object.keys(state.industryCompanies).map(industryType => {
@@ -73,7 +73,7 @@ export function Statistics() {
     return (
         <div>
             <header className="p-5">
-                <Nav variant="pills" onSelect={(eventKey) => dispatch(fetchStockDetailStatisticsListAsync([eventKey, 30])).then(dispatch(setTitle(eventKey)))}>
+                <Nav variant="pills" onSelect={(eventKey) => dispatch(fetchStockDetailStatisticsListAsync({stockcode: eventKey, days: 90})).then(dispatch(setTitle(eventKey)))}>
                     {industrylist}
                 </Nav>
             </header>
@@ -81,14 +81,14 @@ export function Statistics() {
                 <h3 style={{ textAlign: 'center' }}>{state.title}</h3>
                 <Row>
                     <Col md={{ span: 2, offset: 10 }}>
-                        <DropdownButton id="dropdown-basic-button" title="顯示資料" variant={"Info"}>
-                            <Dropdown.Item onClick={() => dispatch(fetchStockDetailStatisticsListAsync([state.title.split(' ')[0], 30]))}>近1個月</Dropdown.Item>
-                            <Dropdown.Item onClick={() => dispatch(fetchStockDetailStatisticsListAsync([state.title.split(' ')[0], 90]))}>近3個月</Dropdown.Item>
-                            <Dropdown.Item onClick={() => dispatch(fetchStockDetailStatisticsListAsync([state.title.split(' ')[0], 180]))}>近6個月</Dropdown.Item>
+                        <DropdownButton id="dropdown-basic-button" title="顯示資料量" variant={"Info"}>
+                            <Dropdown.Item>30筆</Dropdown.Item>
+                            <Dropdown.Item>60筆</Dropdown.Item>
+                            <Dropdown.Item>90筆</Dropdown.Item>
                         </DropdownButton>
                     </Col>
                 </Row>
-                <StockChart stockdata={state.stockData} title={state.title} />
+                <StockChart stockdata={state.stockData} title={state.title}/>
                 <div>
                     <Row>
                         <Col xl={6}>

@@ -4,7 +4,8 @@ import { fetchUrl } from '../api/industryAPI';
 export const fetchStockDetailStatisticsListAsync = createAsyncThunk(
     'statistics/fetchStockDetailStatisticsListAsync',
     async (param) => {
-        let [stockcode,days]=param
+        let stockcode=param.stockcode
+        let days=param.days
         let data = await fetchUrl('http://127.0.0.1:8080/statistics/' + stockcode + '/' + days)
         console.log(data)
         return { stockcode: stockcode, data: data }
@@ -82,6 +83,7 @@ export const statisticsSlice = createSlice({
             .addCase(fetchStockDetailStatisticsListAsync.fulfilled, (state, action) => {
                 let data = action.payload.data
                 state.stockData.data = []
+                state.stockData.avgCost = []
                 data.forEach(object => {
                     let arr = []
                     arr.push(Date.parse(object.tradingDate))
