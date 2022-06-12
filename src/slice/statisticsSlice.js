@@ -3,8 +3,9 @@ import { fetchUrl } from '../api/industryAPI';
 
 export const fetchStockDetailStatisticsListAsync = createAsyncThunk(
     'statistics/fetchStockDetailStatisticsListAsync',
-    async (stockcode) => {
-        let data = await fetchUrl('http://127.0.0.1:8080/statistics/' + stockcode + '/'+30)
+    async (param) => {
+        let [stockcode,days]=param
+        let data = await fetchUrl('http://127.0.0.1:8080/statistics/' + stockcode + '/' + days)
         console.log(data)
         return { stockcode: stockcode, data: data }
     }
@@ -36,11 +37,17 @@ const initialState = {
     industryCompanies: {},
     title: '2330 台積電',
     companies: {},
-    avg5d:false,
-    avg10d:true,
-    avg21d:false,
-    avg62d:true,
-    data: []
+    avg5d: false,
+    avg10d: false,
+    avg21d: false,
+    avg62d: false,
+    avg10dVol: false,
+    avg21dVol: false,
+    data: [],
+    stockData: {
+        data: [],
+        avgCost: []
+    }
 };
 
 export const statisticsSlice = createSlice({
@@ -51,11 +58,44 @@ export const statisticsSlice = createSlice({
             let stockcode = action.payload
             state.title = stockcode + ' ' + state.companies[stockcode]
         },
+        setAvg5d: (state, action) => {
+            state.avg5d = !state.avg5d
+        },
+        setAvg10d: (state, action) => {
+            state.avg10d = !state.avg10d
+        },
+        setAvg21d: (state, action) => {
+            state.avg21d = !state.avg21d
+        },
+        setAvg62d: (state, action) => {
+            state.avg62d = !state.avg62d
+        },
+        setAvg10dVol: (state, action) => {
+            state.avg10dVol = !state.avg10dVol
+        },
+        setAvg21dVol: (state, action) => {
+            state.avg21dVol = !state.avg21dVol
+        },
     },
     extraReducers: (builder) => {
         builder
             .addCase(fetchStockDetailStatisticsListAsync.fulfilled, (state, action) => {
                 let data = action.payload.data
+                state.stockData.data = []
+                data.forEach(object => {
+                    let arr = []
+                    arr.push(Date.parse(object.tradingDate))
+                    arr.push(object.開盤)
+                    arr.push(object.最高)
+                    arr.push(object.最低)
+                    arr.push(object.收盤)
+                    state.stockData.data.push(arr)
+
+                    let avgCost = []
+                    avgCost.push(Date.parse(object.tradingDate))
+                    avgCost.push(object.平均成本)
+                    state.stockData.avgCost.push(avgCost)
+                })
                 state.data = data
             })
             .addCase(fetch_All_Industry_TypeAsync.fulfilled, (state, action) => {
@@ -74,7 +114,7 @@ export const statisticsSlice = createSlice({
     },
 });
 
-export const { setTitle } = statisticsSlice.actions;
+export const { setTitle,setAvg5d,setAvg10d,setAvg21d,setAvg62d,setAvg10dVol,setAvg21dVol } = statisticsSlice.actions;
 
 export const selectStatistics = (state) => state.statistics;
 

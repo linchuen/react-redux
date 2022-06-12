@@ -10,9 +10,10 @@ import {
 import {
     fetchCompanyTypeAsync
 } from '../slice/industrySlice';
-import { ComposedChart, Line, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Bar } from 'recharts';
-import { Row, Col, Nav, NavDropdown } from 'react-bootstrap';
-
+import { Row, Col, Nav, NavDropdown, DropdownButton, Dropdown } from 'react-bootstrap';
+import StockChart from './stockChart.js'
+import AvgCostChart from './avgCostChart.js'
+import AvgVolumeChart from './avgVolumeChart.js'
 
 const example = [
     {
@@ -29,6 +30,7 @@ const example = [
         "平均62日成本": null,
         "平均股數": 1005.39,
         "成交筆數": 65468,
+        "平均21日成交筆數": 111716,
         "tradingDate": "2022-03-17"
     },
 ];
@@ -44,7 +46,7 @@ export function Statistics() {
         dispatch(fetch_All_Industry_TypeAsync()).then((action) => {
             action.payload.data.forEach(industryType => dispatch(fetch_Industry_CompaniesAsync(industryType)))
         })
-        dispatch(fetchStockDetailStatisticsListAsync('2330'))
+        dispatch(fetchStockDetailStatisticsListAsync(['2330', 30]))
     }, [])
 
     let industrylist = Object.keys(state.industryCompanies).map(industryType => {
@@ -53,14 +55,14 @@ export function Statistics() {
             //console.log(key, listedlist.includes(key))
             if (listedlist.includes(key)) {
                 return (
-                    <Col md={4}>
+                    <Col md={4} key={key + value}>
                         <NavDropdown.Item eventKey={key}>{key + ' ' + value}</NavDropdown.Item>
                     </Col>
                 )
             }
         })
         return (
-            <NavDropdown title={industryType} >
+            <NavDropdown title={industryType} key={industryType}>
                 <Row style={{ width: '450px' }}>
                     {companylist}
                 </Row>
@@ -71,46 +73,33 @@ export function Statistics() {
     return (
         <div>
             <header className="p-5">
-                <Nav variant="pills" onSelect={(eventKey) => dispatch(fetchStockDetailStatisticsListAsync(eventKey)).then(dispatch(setTitle(eventKey)))}>
+                <Nav variant="pills" onSelect={(eventKey) => dispatch(fetchStockDetailStatisticsListAsync([eventKey, 30])).then(dispatch(setTitle(eventKey)))}>
                     {industrylist}
                 </Nav>
             </header>
             <section>
+                <h3 style={{ textAlign: 'center' }}>{state.title}</h3>
                 <Row>
-                    <Col md={12} xl={{ span: 10, offset: 1 }} style={{ height: '600px' }}>
-                        <h3 style={{ textAlign: 'center' }}>{state.title}</h3>
-                        <ResponsiveContainer width="100%" height="90%">
-                            <ComposedChart
-                                width={500}
-                                height={300}
-                                data={state.data}
-                                margin={{
-                                    top: 5,
-                                    right: 30,
-                                    left: 20,
-                                    bottom: 5,
-                                }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="tradingDate" />
-                                <YAxis yAxisId="left" />
-                                <YAxis yAxisId="right" orientation="right" />
-                                <Tooltip />
-                                <Legend />
-                                <Bar yAxisId="right" dataKey="成交筆數" fill="red" fillOpacity={0.5} />{ }
-                                <Line yAxisId="left" type="monotone" dataKey="收盤" stroke="#000000" activeDot={{ r: 8 }} />
-                                <Line yAxisId="left" type="monotone" dataKey="平均成本" stroke="#ac39ac"/>
-                                <Line yAxisId="left" type="monotone" dataKey={state.avg5d?"平均5日成本":""} stroke="#0000ff" />
-                                <Line yAxisId="left" type="monotone" dataKey={state.avg10d?"平均10日成本":""} stroke="#ff33cc" />
-                                <Line yAxisId="left" type="monotone" dataKey={state.avg21d?"平均21日成本":""} stroke="#ff0000" />
-                                <Line yAxisId="left" type="monotone" dataKey={state.avg62d?"平均62日成本":""} stroke="#009933" />
-                            </ComposedChart>
-                        </ResponsiveContainer>
+                    <Col md={{ span: 2, offset: 10 }}>
+                        <DropdownButton id="dropdown-basic-button" title="顯示資料" variant={"Info"}>
+                            <Dropdown.Item onClick={() => dispatch(fetchStockDetailStatisticsListAsync([state.title.split(' ')[0], 30]))}>近1個月</Dropdown.Item>
+                            <Dropdown.Item onClick={() => dispatch(fetchStockDetailStatisticsListAsync([state.title.split(' ')[0], 90]))}>近3個月</Dropdown.Item>
+                            <Dropdown.Item onClick={() => dispatch(fetchStockDetailStatisticsListAsync([state.title.split(' ')[0], 180]))}>近6個月</Dropdown.Item>
+                        </DropdownButton>
                     </Col>
                 </Row>
+                <StockChart stockdata={state.stockData} title={state.title} />
+                <div>
+                    <Row>
+                        <Col xl={6}>
+                            <AvgCostChart />
+                        </Col>
+                        <Col xl={6}>
+                            <AvgVolumeChart />
+                        </Col>
+                    </Row>
+                </div>
             </section>
-
         </div>
-
     )
 }
