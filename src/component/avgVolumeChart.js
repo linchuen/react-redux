@@ -3,14 +3,25 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
     setAvg10dVol,
     setAvg21dVol,
+    setAvgShareSD,
     selectStatistics
 } from '../slice/statisticsSlice';
-import { ComposedChart, Line, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Bar } from 'recharts';
+import { ComposedChart, Line, ReferenceLine, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Bar } from 'recharts';
 import { Row, Col } from 'react-bootstrap';
 
 export default function AvgVolumeChart() {
     const state = useSelector(selectStatistics)
     const dispatch = useDispatch()
+
+    let sdLines = []
+    let avgShareSDList = state.avgShareSDList
+    for (let i = 0; i < avgShareSDList.length - 1; i++) {
+        if (i === 2) {
+            sdLines.push(<ReferenceLine yAxisId="right" y={state.avgShareSDList[i]} stroke="#808080" label={state.avgShareSD ? "AVG" : ""} strokeWidth={state.avgShareSD ? 1 : 0} />)
+        } else {
+            sdLines.push(<ReferenceLine yAxisId="right" y={state.avgShareSDList[i]} stroke="#808080" strokeWidth={state.avgShareSD ? 1 : 0} />)
+        }
+    }
     return (
         <div>
             <h4 style={{ textAlign: 'center' }}>交易量&平均股數</h4>
@@ -38,6 +49,7 @@ export default function AvgVolumeChart() {
                             <Line yAxisId="left" type="monotone" dataKey={"成交筆數"} stroke="#009933" />
                             <Line yAxisId="left" type="monotone" dataKey={state.avg10dVol ? "平均10日成交筆數" : ""} stroke="#0000ff" />
                             <Line yAxisId="left" type="monotone" dataKey={state.avg21dVol ? "平均21日成交筆數" : ""} stroke="#ff33cc" />
+                            {sdLines}
                         </ComposedChart>
                     </ResponsiveContainer>
                 </Col>
@@ -49,6 +61,10 @@ export default function AvgVolumeChart() {
                     <div className="form-check m-2" style={{ display: "inline-block" }}>
                         <input className="form-check-input" type="checkbox" onChange={() => { dispatch(setAvg21dVol()) }} />
                         <label className="form-check-label">平均21日成交筆數</label>
+                    </div>
+                    <div className="form-check m-2" style={{ display: "inline-block" }}>
+                        <input className="form-check-input" type="checkbox" onChange={() => { dispatch(setAvgShareSD()) }} />
+                        <label className="form-check-label">平均股數準差</label>
                     </div>
                 </Col>
             </Row>

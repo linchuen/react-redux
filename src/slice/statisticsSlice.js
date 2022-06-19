@@ -4,9 +4,19 @@ import { fetchUrl } from '../api/industryAPI';
 export const fetchStockDetailStatisticsListAsync = createAsyncThunk(
     'statistics/fetchStockDetailStatisticsListAsync',
     async (param) => {
-        let stockcode=param.stockcode
-        let days=param.days
+        let stockcode = param.stockcode
+        let days = param.days
         let data = await fetchUrl('http://127.0.0.1:8080/statistics/' + stockcode + '/' + days)
+        console.log(data)
+        return { stockcode: stockcode, data: data }
+    }
+);
+
+export const fetchEvaluateEntityAsync = createAsyncThunk(
+    'statistics/fetchEvaluateEntityAsync',
+    async (param) => {
+        let stockcode = param.stockcode
+        let data = await fetchUrl('http://127.0.0.1:8080/evaluate/' + stockcode)
         console.log(data)
         return { stockcode: stockcode, data: data }
     }
@@ -44,12 +54,18 @@ const initialState = {
     avg62d: false,
     avg10dVol: false,
     avg21dVol: false,
+    avgShareSD: false,
     data: [],
-    dataAmout:90,
+    dataAmout: 90,
     stockData: {
         data: [],
         avgCost: []
-    }
+    },
+    avgShareSDList: [],
+    ma5SlopeList: [],
+    ma10SlopeList: [],
+    ma21SlopeList: [],
+    ma62SlopeList: []
 };
 
 export const statisticsSlice = createSlice({
@@ -78,6 +94,9 @@ export const statisticsSlice = createSlice({
         setAvg21dVol: (state, action) => {
             state.avg21dVol = !state.avg21dVol
         },
+        setAvgShareSD: (state, action) => {
+            state.avgShareSD = !state.avgShareSD
+        },
         setDataAmout: (state, action) => {
             let amout = action.payload
             state.dataAmout = amout
@@ -105,6 +124,14 @@ export const statisticsSlice = createSlice({
                 })
                 state.data = data
             })
+            .addCase(fetchEvaluateEntityAsync.fulfilled, (state, action) => {
+                let data = action.payload.data
+                state.avgShareSDList = data.avgShareSDList
+                state.ma5SlopeList = data.ma5SlopeList
+                state.ma10SlopeList = data.ma10SlopeList
+                state.ma21SlopeList = data.ma21SlopeList
+                state.ma62SlopeList = data.ma62SlopeList
+            })
             .addCase(fetch_All_Industry_TypeAsync.fulfilled, (state, action) => {
                 let data = action.payload.data
                 state.allIndustryType = data
@@ -121,7 +148,7 @@ export const statisticsSlice = createSlice({
     },
 });
 
-export const { setTitle,setAvg5d,setAvg10d,setAvg21d,setAvg62d,setAvg10dVol,setAvg21dVol,setDataAmout } = statisticsSlice.actions;
+export const { setTitle, setAvg5d, setAvg10d, setAvg21d, setAvg62d, setAvg10dVol, setAvg21dVol, setAvgShareSD, setDataAmout } = statisticsSlice.actions;
 
 export const selectStatistics = (state) => state.statistics;
 

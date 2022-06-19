@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
     fetchStockDetailStatisticsListAsync,
+    fetchEvaluateEntityAsync,
     fetch_All_Industry_TypeAsync,
     fetch_Industry_CompaniesAsync,
     setTitle,
@@ -48,6 +49,7 @@ export function Statistics() {
             action.payload.data.forEach(industryType => dispatch(fetch_Industry_CompaniesAsync(industryType)))
         })
         dispatch(fetchStockDetailStatisticsListAsync({ stockcode: state.title.split(' ')[0], days: 90 }))
+        dispatch(fetchEvaluateEntityAsync({ stockcode: state.title.split(' ')[0] }))
     }, [])
 
     let industrylist = Object.keys(state.industryCompanies).map(industryType => {
@@ -74,7 +76,9 @@ export function Statistics() {
     return (
         <div>
             <header className="p-5">
-                <Nav variant="pills" onSelect={(eventKey) => dispatch(fetchStockDetailStatisticsListAsync({ stockcode: eventKey, days: 90 })).then(dispatch(setTitle(eventKey)))}>
+                <Nav variant="pills" onSelect={(eventKey) => dispatch(fetchStockDetailStatisticsListAsync({ stockcode: eventKey, days: 90 }))
+                .then(dispatch(fetchEvaluateEntityAsync({ stockcode: eventKey })))
+                .then(dispatch(setTitle(eventKey)))}>
                     {industrylist}
                 </Nav>
             </header>
@@ -83,9 +87,9 @@ export function Statistics() {
                 <Row>
                     <Col md={{ span: 2, offset: 10 }}>
                         <DropdownButton id="dropdown-basic-button" title="顯示資料量" variant={"Info"}>
-                            <Dropdown.Item onClick={()=>dispatch(setDataAmout(30))}>30筆</Dropdown.Item>
-                            <Dropdown.Item onClick={()=>dispatch(setDataAmout(60))}>60筆</Dropdown.Item>
-                            <Dropdown.Item onClick={()=>dispatch(setDataAmout(90))}>90筆</Dropdown.Item>
+                            <Dropdown.Item onClick={() => dispatch(setDataAmout(30))}>30筆</Dropdown.Item>
+                            <Dropdown.Item onClick={() => dispatch(setDataAmout(60))}>60筆</Dropdown.Item>
+                            <Dropdown.Item onClick={() => dispatch(setDataAmout(90))}>90筆</Dropdown.Item>
                         </DropdownButton>
                     </Col>
                 </Row>
