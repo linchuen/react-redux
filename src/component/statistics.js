@@ -16,6 +16,7 @@ import { Row, Col, Nav, NavDropdown, DropdownButton, Dropdown } from 'react-boot
 import StockChart from './stockChart.js'
 import AvgCostChart from './avgCostChart.js'
 import AvgVolumeChart from './avgVolumeChart.js'
+import { useSearchParams } from "react-router-dom";
 
 const example = [
     {
@@ -39,17 +40,21 @@ const example = [
 
 
 export function Statistics() {
+    let [searchParams, setSearchParams] = useSearchParams()
+    let stockcode = searchParams.get("stockcode")
     const state = useSelector(selectStatistics)
     const listedlist = useSelector((state) => state.industry.listed)
     const dispatch = useDispatch()
+    stockcode = stockcode == null ? state.title.split(' ')[0] : stockcode
 
     useEffect(() => {
         dispatch(fetchCompanyTypeAsync('上市'))
         dispatch(fetch_All_Industry_TypeAsync()).then((action) => {
             action.payload.data.forEach(industryType => dispatch(fetch_Industry_CompaniesAsync(industryType)))
         })
-        dispatch(fetchStockDetailStatisticsListAsync({ stockcode: state.title.split(' ')[0], days: 90 }))
-        dispatch(fetchEvaluateEntityAsync({ stockcode: state.title.split(' ')[0] }))
+        dispatch(setTitle(stockcode))
+        dispatch(fetchStockDetailStatisticsListAsync({ stockcode: stockcode, days: 90 }))
+        dispatch(fetchEvaluateEntityAsync({ stockcode: stockcode }))
     }, [])
 
     let industrylist = Object.keys(state.industryCompanies).map(industryType => {
@@ -77,8 +82,8 @@ export function Statistics() {
         <div>
             <header className="p-5">
                 <Nav variant="pills" onSelect={(eventKey) => dispatch(fetchStockDetailStatisticsListAsync({ stockcode: eventKey, days: 90 }))
-                .then(dispatch(fetchEvaluateEntityAsync({ stockcode: eventKey })))
-                .then(dispatch(setTitle(eventKey)))}>
+                    .then(dispatch(fetchEvaluateEntityAsync({ stockcode: eventKey })))
+                    .then(dispatch(setTitle(eventKey)))}>
                     {industrylist}
                 </Nav>
             </header>
