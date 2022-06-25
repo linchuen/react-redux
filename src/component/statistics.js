@@ -13,10 +13,12 @@ import {
     fetchCompanyTypeAsync
 } from '../slice/industrySlice';
 import { Row, Col, Nav, NavDropdown, DropdownButton, Dropdown } from 'react-bootstrap';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Bar } from 'recharts';
 import StockChart from './stockChart.js'
 import AvgCostChart from './avgCostChart.js'
 import AvgVolumeChart from './avgVolumeChart.js'
 import { useSearchParams } from "react-router-dom";
+import { ErrorBoundary } from 'react-error-boundary';
 
 const example = [
     {
@@ -45,16 +47,14 @@ export function Statistics() {
     const state = useSelector(selectStatistics)
     const listedlist = useSelector((state) => state.industry.listed)
     const dispatch = useDispatch()
-    stockcode = stockcode == null ? state.title.split(' ')[0] : stockcode
 
     useEffect(() => {
         dispatch(fetchCompanyTypeAsync('上市'))
         dispatch(fetch_All_Industry_TypeAsync()).then((action) => {
             action.payload.data.forEach(industryType => dispatch(fetch_Industry_CompaniesAsync(industryType)))
         })
-        dispatch(setTitle(stockcode))
-        dispatch(fetchStockDetailStatisticsListAsync({ stockcode: stockcode, days: 90 }))
-        dispatch(fetchEvaluateEntityAsync({ stockcode: stockcode }))
+        dispatch(fetchStockDetailStatisticsListAsync({ stockcode: state.title.split(' ')[0], days: 90 }))
+        dispatch(fetchEvaluateEntityAsync({ stockcode: state.title.split(' ')[0] }))
     }, [])
 
     let industrylist = Object.keys(state.industryCompanies).map(industryType => {
@@ -78,6 +78,36 @@ export function Statistics() {
         )
     })
 
+    const errorChart = () => {
+        return (
+            <Row>
+                <Col md={12} style={{ height: '500px' }}>
+                    <ResponsiveContainer width="98%" height="90%">
+                        <LineChart
+                            width={500}
+                            height={300}
+                            data={state.data}
+                            margin={{
+                                top: 5,
+                                right: 30,
+                                left: 20,
+                                bottom: 5,
+                            }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="tradingDate" />
+                            <YAxis yAxisId="left" />
+                            <Tooltip />
+                            <Legend />
+                            <Line yAxisId="left" type="monotone" dataKey="收盤" stroke="blue" />
+                            <Line yAxisId="left" type="monotone" dataKey="平均成本" stroke="red" />
+                        </LineChart >
+                    </ResponsiveContainer>
+                </Col>
+            </Row>
+        )
+    }
+
     return (
         <div>
             <header className="p-5">
@@ -99,7 +129,9 @@ export function Statistics() {
                     </Col>
                 </Row>
                 <h3 style={{ textAlign: 'center' }}>{state.title}</h3>
-                <StockChart stockdata={state.stockData} title={state.title} />
+                <ErrorBoundary FallbackComponent={errorChart} resetKeys={[state.stockData]}>
+                    <StockChart stockdata={state.stockData} title={state.title} />
+                </ErrorBoundary>
                 <div>
                     <Row>
                         <Col xl={6}>

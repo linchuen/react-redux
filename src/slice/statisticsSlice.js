@@ -100,7 +100,7 @@ export const statisticsSlice = createSlice({
         setDataAmout: (state, action) => {
             let amout = action.payload
             state.dataAmout = amout
-        },
+        }
     },
     extraReducers: (builder) => {
         builder

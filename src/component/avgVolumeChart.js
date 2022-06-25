@@ -17,9 +17,9 @@ export default function AvgVolumeChart() {
     let avgShareSDList = state.avgShareSDList
     for (let i = 0; i < avgShareSDList.length - 1; i++) {
         if (i === 2) {
-            sdLines.push(<ReferenceLine yAxisId="right" y={state.avgShareSDList[i]} stroke="#808080" label={state.avgShareSD ? "AVG" : ""} strokeWidth={state.avgShareSD ? 1 : 0} />)
+            sdLines.push(<ReferenceLine key={i} yAxisId="right" y={state.avgShareSDList[i]} stroke="#808080" label={state.avgShareSD ? "AVG" : ""} strokeWidth={state.avgShareSD ? 1 : 0} />)
         } else {
-            sdLines.push(<ReferenceLine yAxisId="right" y={state.avgShareSDList[i]} stroke="#808080" strokeWidth={state.avgShareSD ? 1 : 0} />)
+            sdLines.push(<ReferenceLine key={i} yAxisId="right" y={state.avgShareSDList[i]} stroke="#808080" strokeWidth={state.avgShareSD ? 1 : 0} />)
         }
     }
     return (
