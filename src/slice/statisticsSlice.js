@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchUrl } from '../api/industryAPI';
+import { fetchUrl } from '../api/commonAPI';
 
 export const fetchStockDetailStatisticsListAsync = createAsyncThunk(
     'statistics/fetchStockDetailStatisticsListAsync',
@@ -47,6 +47,7 @@ const initialState = {
     allIndustryType: [],
     industryCompanies: {},
     title: '2330 台積電',
+    stockcode:'2330',
     companies: {},
     avg5d: false,
     avg10d: false,
@@ -73,8 +74,8 @@ export const statisticsSlice = createSlice({
     initialState,
     reducers: {
         setTitle: (state, action) => {
-            let stockcode = action.payload
-            state.title = stockcode + ' ' + state.companies[stockcode]
+            state.title = action.payload
+            state.stockcode = action.payload.split(' ')[0]
         },
         setAvg5d: (state, action) => {
             state.avg5d = !state.avg5d

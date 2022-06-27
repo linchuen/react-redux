@@ -46,19 +46,19 @@ export default function AvgCostChart() {
                     </ResponsiveContainer>
                 </Col>
                 <Col md={{ span: 11, offset: 1 }}>
-                    <div className="form-check m-2" style={{ display: "inline-block" }}>
+                    <div className="form-check m-2 d-inline-flex">
                         <input className="form-check-input" type="checkbox" onChange={() => { dispatch(setAvg5d()) }} />
                         <label className="form-check-label">平均5日成本 ↗{state.ma5SlopeList[0]} ↘{state.ma5SlopeList[1]}</label>
                     </div>
-                    <div className="form-check m-2" style={{ display: "inline-block" }}>
+                    <div className="form-check m-2 d-inline-flex">
                         <input className="form-check-input" type="checkbox" value="平均10日成本" onChange={() => { dispatch(setAvg10d()) }} />
                         <label className="form-check-label">平均10日成本 ↗{state.ma10SlopeList[0]} ↘{state.ma10SlopeList[1]}</label>
                     </div>
-                    <div className="form-check m-2" style={{ display: "inline-block" }}>
+                    <div className="form-check m-2 d-inline-flex">
                         <input className="form-check-input" type="checkbox" value="平均21日成本" onChange={() => { dispatch(setAvg21d()) }} />
                         <label className="form-check-label">平均21日成本 ↗{state.ma21SlopeList[0]} ↘{state.ma21SlopeList[1]}</label>
                     </div>
-                    <div className="form-check m-2" style={{ display: "inline-block" }}>
+                    <div className="form-check m-2 d-inline-flex">
                         <input className="form-check-input" type="checkbox" value="平均62日成本" onChange={() => { dispatch(setAvg62d()) }} />
                         <label className="form-check-label">平均62日成本 ↗{state.ma62SlopeList[0]} ↘{state.ma62SlopeList[1]}</label>
                     </div>

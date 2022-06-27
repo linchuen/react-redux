@@ -44,17 +44,20 @@ const example = [
 export function Statistics() {
     let [searchParams, setSearchParams] = useSearchParams()
     let stockcode = searchParams.get("stockcode")
+    let name = searchParams.get("name")
     const state = useSelector(selectStatistics)
     const listedlist = useSelector((state) => state.industry.listed)
     const dispatch = useDispatch()
 
     useEffect(() => {
         dispatch(fetchCompanyTypeAsync('上市'))
-        dispatch(fetch_All_Industry_TypeAsync()).then((action) => {
-            action.payload.data.forEach(industryType => dispatch(fetch_Industry_CompaniesAsync(industryType)))
-        })
-        dispatch(fetchStockDetailStatisticsListAsync({ stockcode: state.title.split(' ')[0], days: 90 }))
-        dispatch(fetchEvaluateEntityAsync({ stockcode: state.title.split(' ')[0] }))
+        dispatch(fetch_All_Industry_TypeAsync())
+            .then((action) => {
+                action.payload.data.forEach(industryType => dispatch(fetch_Industry_CompaniesAsync(industryType)))
+            })
+            .then(() => dispatch(setTitle(stockcode + ' ' + name)))
+            .then(() => dispatch(fetchStockDetailStatisticsListAsync({ stockcode: state.stockcode, days: 90 })))
+            .then(() => dispatch(fetchEvaluateEntityAsync({ stockcode: state.stockcode })))
     }, [])
 
     let industrylist = Object.keys(state.industryCompanies).map(industryType => {
@@ -64,7 +67,7 @@ export function Statistics() {
             if (listedlist.includes(key)) {
                 return (
                     <Col md={4} key={key + value}>
-                        <NavDropdown.Item eventKey={key}>{key + ' ' + value}</NavDropdown.Item>
+                        <NavDropdown.Item eventKey={key + ' ' + value}>{key + ' ' + value}</NavDropdown.Item>
                     </Col>
                 )
             }
@@ -111,9 +114,10 @@ export function Statistics() {
     return (
         <div>
             <header className="p-5">
-                <Nav variant="pills" onSelect={(eventKey) => dispatch(fetchStockDetailStatisticsListAsync({ stockcode: eventKey, days: 90 }))
-                    .then(dispatch(fetchEvaluateEntityAsync({ stockcode: eventKey })))
-                    .then(dispatch(setTitle(eventKey)))}>
+                <Nav variant="pills" onSelect={(eventKey) => dispatch(fetchStockDetailStatisticsListAsync({ stockcode: eventKey.split(' ')[0], days: 90 }))
+                    .then(dispatch(fetchEvaluateEntityAsync({ stockcode: eventKey.split(' ')[0] })))
+                    .then(dispatch(setTitle(eventKey)))
+                    .then(setSearchParams({ stockcode: eventKey.split(' ')[0],name: eventKey.split(' ')[1]}))}>
                     {industrylist}
                 </Nav>
             </header>

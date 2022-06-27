@@ -54,15 +54,15 @@ export default function AvgVolumeChart() {
                     </ResponsiveContainer>
                 </Col>
                 <Col md={{ span: 11, offset: 1 }}>
-                    <div className="form-check m-2" style={{ display: "inline-block" }}>
+                    <div className="form-check m-2 d-inline-flex">
                         <input className="form-check-input" type="checkbox" onChange={() => { dispatch(setAvg10dVol()) }} />
                         <label className="form-check-label">平均10日成交筆數</label>
                     </div>
-                    <div className="form-check m-2" style={{ display: "inline-block" }}>
+                    <div className="form-check m-2 d-inline-flex">
                         <input className="form-check-input" type="checkbox" onChange={() => { dispatch(setAvg21dVol()) }} />
                         <label className="form-check-label">平均21日成交筆數</label>
                     </div>
-                    <div className="form-check m-2" style={{ display: "inline-block" }}>
+                    <div className="form-check m-2 d-inline-flex">
                         <input className="form-check-input" type="checkbox" onChange={() => { dispatch(setAvgShareSD()) }} />
                         <label className="form-check-label">平均股數準差</label>
                     </div>
